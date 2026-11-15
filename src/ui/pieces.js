@@ -70,22 +70,76 @@ export function pieceDefsSVG() {
       `<stop offset="1" stop-color="${piece.dark}"/>` +
       '</radialGradient>'
   ).join('');
-  return `<svg xmlns="${SVG_NS}" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>${gradients}</defs></svg>`;
+  const gloss =
+    '<radialGradient id="tdd-gloss" cx="35%" cy="28%" r="75%">' +
+    '<stop offset="0" stop-color="#fff" stop-opacity="0.85"/>' +
+    '<stop offset="0.5" stop-color="#fff" stop-opacity="0.12"/>' +
+    '<stop offset="1" stop-color="#000" stop-opacity="0.18"/>' +
+    '</radialGradient>';
+  return `<svg xmlns="${SVG_NS}" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>${gradients}${gloss}</defs></svg>`;
 }
 
-// SVG di una caramella del colore dato (0..5).
-export function candySVG(color) {
+const SHADOW = '#3b1d4a';
+
+// Segni del Razzo: due strisce e due frecce nella direzione in cui spara.
+function rocketMarks(piece, vertical) {
+  const turn = vertical ? ' transform="rotate(90 50 50)"' : '';
+  return (
+    `<g class="rocket-marks"${turn}>` +
+    '<path d="M30 42 H70 M30 58 H70" fill="none" stroke="#fff" stroke-opacity="0.92" stroke-width="7" stroke-linecap="round"/>' +
+    `<g fill="#fff" stroke="${piece.dark}" stroke-width="3.5" stroke-linejoin="round">` +
+    '<polygon points="17,36 2,50 17,64"/><polygon points="83,36 98,50 83,64"/>' +
+    '</g></g>'
+  );
+}
+
+// Arcobaleno: sfera a sei spicchi, uno per colore.
+function rainbowSVG() {
+  let wedges = '';
+  for (let i = 0; i < 6; i++) {
+    const a0 = ((i * 60 - 90) * Math.PI) / 180;
+    const a1 = (((i + 1) * 60 - 90) * Math.PI) / 180;
+    const p = (a) => `${(50 + 41 * Math.cos(a)).toFixed(1)} ${(50 + 41 * Math.sin(a)).toFixed(1)}`;
+    wedges += `<path d="M50 50 L${p(a0)} A41 41 0 0 1 ${p(a1)} Z" fill="${PIECES[i].main}"/>`;
+  }
+  return (
+    `<svg xmlns="${SVG_NS}" viewBox="0 0 100 100" class="piece piece-rainbow" aria-hidden="true" focusable="false">` +
+    `<circle cx="50" cy="55" r="41" fill="${SHADOW}" opacity="0.22"/>` +
+    `<g class="rainbow-spin">${wedges}</g>` +
+    '<circle cx="50" cy="50" r="41" fill="url(#tdd-gloss)"/>' +
+    '<circle cx="50" cy="50" r="41" fill="none" stroke="#fff" stroke-width="4"/>' +
+    '<circle cx="50" cy="50" r="9" fill="#fff"/>' +
+    '</svg>'
+  );
+}
+
+// SVG di una caramella del colore dato (0..5), normale o speciale.
+export function candySVG(color, special = null) {
+  if (special === 'rainbow') return rainbowSVG();
   const piece = PIECES[color];
   if (!piece) throw new Error(`Colore sconosciuto: ${color}`);
   const stroke = piece.stroked ? ` stroke="url(#tdd-g${color})"` : '';
-  const shadowStroke = piece.stroked ? ' stroke="#3b1d4a"' : '';
+  const shadowStroke = piece.stroked ? ` stroke="${SHADOW}"` : '';
+  let behind = '';
+  let front = '';
+  if (special === 'rocketH' || special === 'rocketV') {
+    front = rocketMarks(piece, special === 'rocketV');
+  } else if (special === 'bomb') {
+    // Bomba: alone che pulsa dietro, nocciolo scuro con una scintilla davanti.
+    behind = `<circle class="bomb-halo" cx="50" cy="50" r="46" fill="#fff" fill-opacity="0.6" stroke="${piece.main}" stroke-width="5"/>`;
+    front =
+      `<circle cx="50" cy="52" r="16" fill="${SHADOW}"/>` +
+      '<path d="M50 40 L53 49 L62 52 L53 55 L50 64 L47 55 L38 52 L47 49 Z" fill="#fff"/>';
+  }
   return (
-    `<svg xmlns="${SVG_NS}" viewBox="0 0 100 100" class="piece piece-${color}" aria-hidden="true" focusable="false">` +
+    `<svg xmlns="${SVG_NS}" viewBox="0 0 100 100" class="piece piece-${color}${special ? ` piece-${special}` : ''}" aria-hidden="true" focusable="false">` +
+    behind +
     // ombra leggera: la stessa forma, più scura e spostata in basso
-    `<g transform="translate(0 5)" fill="#3b1d4a"${shadowStroke} opacity="0.22">${piece.shape}</g>` +
+    `<g transform="translate(0 5)" fill="${SHADOW}"${shadowStroke} opacity="0.22">${piece.shape}</g>` +
     `<g fill="url(#tdd-g${color})"${stroke}>${piece.shape}</g>` +
     (piece.detail ?? '') +
     `<g fill="#fff" opacity="0.6">${piece.shine}</g>` +
+    front +
     '</svg>'
   );
 }

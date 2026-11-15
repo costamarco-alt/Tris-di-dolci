@@ -18,6 +18,10 @@ export function stateFromColors(lines, { colors = 5, seed = 1, moves = 10, level
     score: 0,
     collected: {},
     maxCascade: 0,
+    bonus: 0,
+    stuck: false,
+    jellyTotal: 0,
+    iceTotal: 0,
   };
 }
 
@@ -35,3 +39,15 @@ export function isFull(board) {
 
 // Tabellone 6×6 a 4 colori senza match e senza mosse valide.
 export const NO_MOVES = ['012301', '230123', '012301', '230123', '012301', '230123'];
+
+// Tabellone 6×6 a 6 colori senza match e senza mosse valide: ogni riga contiene
+// una caramella per colore. Comodo come base per provare gli speciali.
+export const QUIET = ['012345', '345012', '012345', '345012', '012345', '345012'];
+
+export function setSpecial(state, r, c, special) {
+  state.board.cells[r][c].candy.special = special;
+  return state.board.cells[r][c].candy;
+}
+
+// Chiave leggibile di una casella, per confrontare insiemi di caselle.
+export const cellKeys = (cells) => cells.map((p) => `${p.r},${p.c}`).sort();

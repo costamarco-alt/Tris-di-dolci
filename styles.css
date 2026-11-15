@@ -8,7 +8,7 @@
   --ink: #5a2a4a;
   --pink: #d6336c;
   --panel: rgba(255, 255, 255, 0.72);
-  --top-h: 168px; /* spazio riservato a titolo e HUD */
+  --top-h: 190px; /* spazio riservato a barra in alto e HUD */
 }
 
 html,
@@ -28,37 +28,349 @@ body {
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
+  touch-action: manipulation;
 }
 
 .app {
   height: 100vh;
   height: 100dvh;
+}
+
+.screen {
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: max(8px, env(safe-area-inset-top)) 8px max(8px, env(safe-area-inset-bottom));
 }
 
-/* ---------- Titolo e HUD ---------- */
+.screen[hidden] {
+  display: none;
+}
+
+/* Passaggio morbido da una schermata all'altra */
+.screen:not([hidden]) {
+  animation: screen-in 240ms ease-out;
+}
+
+@keyframes screen-in {
+  from { opacity: 0; transform: translateY(10px); }
+}
+
+/* ---------- Schermata di caricamento ---------- */
+
+.loading {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: linear-gradient(160deg, #ffe3ec 0%, #ffd1e6 35%, #d9c8ff 70%, #bfe3ff 100%);
+}
+
+.loading-title {
+  font-size: clamp(2.2rem, 11vw, 3.4rem);
+  font-weight: 900;
+  color: var(--pink);
+  text-shadow: 0 3px 0 #fff;
+}
+
+.loading-dots {
+  display: flex;
+  gap: 10px;
+}
+
+.loading-dots span {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--pink);
+  animation: dot-bounce 900ms ease-in-out infinite;
+}
+
+.loading-dots span:nth-child(2) { animation-delay: 150ms; background: #ff9f1c; }
+.loading-dots span:nth-child(3) { animation-delay: 300ms; background: #3a86ff; }
+
+@keyframes dot-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50% { transform: translateY(-10px); opacity: 1; }
+}
+
+/* ---------- Avviso "nuova versione" ---------- */
+
+.update-banner {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  z-index: 20;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 52px;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 16px;
+  font: inherit;
+  font-weight: 800;
+  color: #fff;
+  background: #5a2a4a;
+  box-shadow: 0 8px 24px rgba(90, 42, 74, 0.35);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.update-banner[hidden] {
+  display: none;
+}
+
+/* ---------- Icone e pulsanti piccoli ---------- */
+
+.icon,
+.star {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.12em;
+}
+
+.icon svg,
+.star svg,
+.hud-star svg,
+.hand svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.star {
+  color: #dccbd6;
+}
+
+.star.on {
+  color: #ffb703;
+}
+
+.icon-button {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  color: var(--pink);
+  background: var(--panel);
+  box-shadow: 0 2px 8px rgba(90, 42, 74, 0.12);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.icon-button:active {
+  transform: scale(0.94);
+}
+
+.icon-button:focus-visible,
+.map-node:focus-visible,
+.switch-row:focus-visible {
+  outline: 3px solid #3a86ff;
+  outline-offset: 2px;
+}
+
+.bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.bar-title {
+  margin: 0;
+  flex: 1 1 auto;
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--pink);
+  text-shadow: 0 2px 0 #fff;
+}
+
+/* ---------- Menu iniziale ---------- */
+
+.screen-menu {
+  justify-content: center;
+  gap: 14px;
+  padding: 24px;
+  text-align: center;
+}
+
+.menu-candies {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  width: min(100%, 340px);
+}
+
+.menu-candy {
+  flex: 1 1 0;
+  max-width: 56px;
+  animation: candy-bob 2.6s ease-in-out infinite;
+}
+
+.menu-candy:nth-child(2n) { animation-delay: -0.9s; }
+.menu-candy:nth-child(3n) { animation-delay: -1.7s; }
+
+.menu-title {
+  margin: 0;
+  font-size: clamp(2.4rem, 12vw, 3.6rem);
+  font-weight: 900;
+  line-height: 1.05;
+  color: var(--pink);
+  text-shadow: 0 3px 0 #fff, 0 8px 18px rgba(214, 51, 108, 0.25);
+}
+
+.menu-text {
+  margin: 0 0 10px;
+  max-width: 300px;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+@keyframes candy-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* ---------- Mappa dei livelli ---------- */
+
+.screen-map {
+  padding-bottom: 0;
+}
+
+.screen-map .bar {
+  width: min(100%, 560px);
+}
+
+.map-total {
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  background: var(--panel);
+}
+
+.map-scroll {
+  touch-action: pan-y;
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.map-path {
+  position: relative;
+  width: min(100%, 420px);
+  margin: 8px auto 32px;
+}
+
+.map-trail,
+.map-trail svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.map-node {
+  position: absolute;
+  width: 68px;
+  height: 68px;
+  margin: -34px 0 0 -34px;
+  padding: 0;
+  border: 4px solid #fff;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  color: #fff;
+  background: linear-gradient(180deg, #ff8fb8, #d6336c);
+  box-shadow: 0 4px 0 #a61e4d, 0 8px 14px rgba(90, 42, 74, 0.2);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.map-node:active {
+  transform: translateY(2px);
+}
+
+.map-node.done {
+  background: linear-gradient(180deg, #ffc971, #ff9f1c);
+  box-shadow: 0 4px 0 #c46f00, 0 8px 14px rgba(90, 42, 74, 0.2);
+}
+
+.map-node.current {
+  animation: node-pulse 1.6s ease-in-out infinite;
+}
+
+.map-node.locked {
+  color: #9b8a96;
+  background: #eadfe6;
+  box-shadow: 0 4px 0 #cdbfc8;
+  cursor: default;
+}
+
+.map-number {
+  font-size: 1.45rem;
+  font-weight: 900;
+  line-height: 1;
+  text-shadow: 0 1px 0 rgba(90, 42, 74, 0.35);
+}
+
+.map-stars {
+  display: flex;
+  margin-top: 2px;
+  font-size: 0.8rem;
+}
+
+.map-stars .star {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.map-stars .star.on {
+  color: #fff8c9;
+}
+
+.map-lock {
+  font-size: 1.6rem;
+}
+
+@keyframes node-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.09); }
+}
+
+/* ---------- Partita: barra in alto e HUD ---------- */
 
 .top {
   width: min(100%, 560px);
   flex: 0 0 auto;
 }
 
-.titolo {
-  margin: 2px 0 6px;
-  text-align: center;
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--pink);
-  text-shadow: 0 2px 0 #fff;
-}
-
 .hud {
   background: var(--panel);
   border-radius: 18px;
-  padding: 8px 12px 10px;
+  padding: 6px 12px 8px;
   box-shadow: 0 4px 14px rgba(90, 42, 74, 0.12);
 }
 
@@ -70,21 +382,21 @@ body {
 }
 
 .hud-label {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   opacity: 0.75;
 }
 
 .hud-value {
-  font-size: 1.45rem;
+  font-size: 1.4rem;
   font-weight: 800;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
 }
 
 .hud-moves .hud-value {
-  font-size: 1.9rem;
+  font-size: 1.8rem;
   color: var(--pink);
 }
 
@@ -95,7 +407,7 @@ body {
 .hud-bar {
   position: relative;
   height: 10px;
-  margin: 12px 8px 6px;
+  margin: 12px 10px 8px;
   border-radius: 999px;
   background: rgba(90, 42, 74, 0.14);
 }
@@ -113,11 +425,11 @@ body {
 .hud-star {
   position: absolute;
   top: 50%;
-  transform: translate(-50%, -54%);
-  font-size: 1.25rem;
-  line-height: 1;
+  width: 22px;
+  height: 22px;
+  margin: -12px 0 0 -11px;
   color: #cbb8c6;
-  text-shadow: 0 1px 0 #fff;
+  filter: drop-shadow(0 1px 0 #fff);
   transition: color 200ms;
 }
 
@@ -126,9 +438,54 @@ body {
 }
 
 .hud-goal {
-  text-align: center;
-  font-size: 0.9rem;
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  font-size: 0.92rem;
   font-weight: 600;
+}
+
+.goal-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px 2px 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.goal-chip.done {
+  background: #d3f9d8;
+  color: #2b8a3e;
+}
+
+.goal-icon {
+  display: inline-block;
+  width: 26px;
+  height: 26px;
+}
+
+.goal-icon-jelly,
+.goal-icon-ice {
+  width: 20px;
+  height: 20px;
+  margin: 3px;
+  border-radius: 6px;
+}
+
+.goal-icon-jelly {
+  background: #ff7ac0;
+  border: 2px solid #d63384;
+}
+
+.goal-icon-ice {
+  background: linear-gradient(135deg, #f1fbff, #9fd8f5);
+  border: 2px solid #5fb8e6;
 }
 
 /* ---------- Tabellone ---------- */
@@ -160,9 +517,14 @@ body {
 
 .board-cells,
 .board-candies,
+.board-ice,
 .board-fx {
   position: absolute;
   inset: 4px;
+}
+
+.board-ice {
+  pointer-events: none;
 }
 
 .board-candies {
@@ -175,6 +537,7 @@ body {
 }
 
 .cell,
+.ice,
 .candy {
   position: absolute;
   left: 0;
@@ -189,6 +552,32 @@ body {
   inset: 4%;
   border-radius: 22%;
   background: rgba(255, 255, 255, 0.55);
+}
+
+/* Gelatina: sotto la caramella. Quella doppia è più scura. */
+.cell.jelly1::before {
+  background: rgba(255, 122, 192, 0.6);
+  box-shadow: inset 0 0 0 2px rgba(214, 51, 132, 0.55);
+}
+
+.cell.jelly2::before {
+  background: rgba(214, 51, 132, 0.78);
+  box-shadow: inset 0 0 0 3px #a61e6e, inset 0 0 0 6px rgba(255, 255, 255, 0.35);
+}
+
+/* Ghiaccio: una lastra sopra la caramella. Quello doppio è più spesso. */
+.ice::before {
+  content: "";
+  position: absolute;
+  inset: 3%;
+  border-radius: 22%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.75) 0%, rgba(190, 232, 255, 0.45) 45%, rgba(130, 205, 245, 0.6) 100%);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.95), inset 0 0 0 4px rgba(95, 184, 230, 0.7);
+}
+
+.ice.ice2::before {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(190, 232, 255, 0.5) 45%, rgba(110, 190, 240, 0.62) 100%);
+  box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 8px rgba(40, 130, 200, 0.95);
 }
 
 .candy {
@@ -238,6 +627,52 @@ body {
   will-change: transform, opacity;
 }
 
+.fx-streak {
+  position: absolute;
+  border-radius: 999px;
+  box-shadow: 0 0 12px 4px rgba(255, 255, 255, 0.9);
+  will-change: transform, opacity;
+}
+
+.fx-wave {
+  position: absolute;
+  border-radius: 50%;
+  border: 6px solid #fff;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0.75) 100%);
+  will-change: transform, opacity;
+}
+
+.fx-ray {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px 3px #fff;
+  will-change: transform, opacity;
+}
+
+/* Bomba: alone che pulsa. Arcobaleno: gli spicchi girano piano. */
+.bomb-halo {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: halo-pulse 1100ms ease-in-out infinite;
+}
+
+.rainbow-spin {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: rainbow-spin 6s linear infinite;
+}
+
+@keyframes halo-pulse {
+  0%, 100% { transform: scale(0.82); opacity: 0.55; }
+  50% { transform: scale(1.04); opacity: 1; }
+}
+
+@keyframes rainbow-spin {
+  to { transform: rotate(360deg); }
+}
+
 .float-text {
   position: absolute;
   left: 0;
@@ -256,6 +691,22 @@ body {
 
 .float-text-shuffle {
   -webkit-text-stroke-color: #6a1fb0;
+}
+
+.float-text-bonus {
+  font-size: clamp(1.3rem, 6.5vw, 2.2rem);
+  -webkit-text-stroke-color: #c46f00;
+}
+
+/* Manina che mostra lo swipe */
+.hand {
+  position: absolute;
+  width: 46px;
+  height: 46px;
+  margin: -6px 0 0 -16px;
+  opacity: 0;
+  filter: drop-shadow(0 3px 4px rgba(90, 42, 74, 0.4));
+  will-change: transform, opacity;
 }
 
 /* ---------- Schermata di fine livello ---------- */
@@ -277,6 +728,8 @@ body {
 }
 
 .card {
+  max-height: 100%;
+  overflow-y: auto;
   width: min(100%, 340px);
   padding: 24px 22px;
   border-radius: 24px;
@@ -293,19 +746,133 @@ body {
 }
 
 .card-stars {
-  font-size: 3rem;
-  line-height: 1.1;
-  letter-spacing: 0.08em;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  font-size: 3.2rem;
 }
 
-.card-star {
-  display: inline-block;
-  color: #e3d6de;
-}
-
-.card-star.on {
-  color: #ffb703;
+.card-stars .star.on {
   animation: star-in 450ms cubic-bezier(0.2, 1.5, 0.5, 1) backwards;
+}
+
+.card-goals {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.card-goals .goal-chip {
+  background: #fff0f6;
+  font-size: 1.1rem;
+}
+
+.card-goals .goal-icon {
+  width: 36px;
+  height: 36px;
+}
+
+.card-tip {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #fff4d6;
+  font-size: 0.98rem;
+  line-height: 1.35;
+}
+
+.card-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.card-buttons-row {
+  flex-direction: row;
+  justify-content: center;
+  gap: 10px;
+}
+
+.card-buttons-row .button {
+  min-width: 0;
+  flex: 1 1 0;
+}
+
+/* Impostazioni */
+.switch-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 6px 0;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 16px;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  background: #fff0f6;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.switch-text {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.switch-label {
+  font-weight: 800;
+}
+
+.switch-note {
+  font-size: 0.82rem;
+  opacity: 0.8;
+}
+
+.switch {
+  position: relative;
+  flex: 0 0 auto;
+  width: 52px;
+  height: 30px;
+  border-radius: 999px;
+  background: #cbb8c6;
+  transition: background 150ms;
+}
+
+.switch::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: transform 150ms;
+}
+
+.switch-row[aria-checked="true"] .switch {
+  background: #40c057;
+}
+
+.switch-row[aria-checked="true"] .switch::after {
+  transform: translateX(22px);
+}
+
+.reset-box {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 2px dashed #f3d9e5;
+}
+
+.reset-box .button {
+  margin-top: 6px;
 }
 
 .card-score {
@@ -319,7 +886,7 @@ body {
 }
 
 .button {
-  margin-top: 16px;
+  margin-top: 12px;
   min-width: 180px;
   min-height: 52px;
   padding: 12px 24px;
@@ -333,6 +900,34 @@ body {
   box-shadow: 0 4px 0 #a61e4d;
   cursor: pointer;
   touch-action: manipulation;
+}
+
+.button-big {
+  min-width: 240px;
+  min-height: 60px;
+  font-size: 1.3rem;
+}
+
+.button-soft {
+  color: var(--pink);
+  background: #fff0f6;
+  box-shadow: 0 4px 0 #f3c4d8;
+}
+
+.button-soft:active {
+  box-shadow: 0 1px 0 #f3c4d8;
+}
+
+.button-danger {
+  color: #fff;
+  background: linear-gradient(180deg, #ff6b6b, #e03131);
+  box-shadow: 0 4px 0 #a51111;
+}
+
+.button-soft.button-danger {
+  color: #e03131;
+  background: #fff5f5;
+  box-shadow: 0 4px 0 #ffc9c9;
 }
 
 .button:active {
@@ -366,14 +961,30 @@ body {
   from { transform: scale(0) rotate(-40deg); opacity: 0; }
 }
 
-/* Schermi bassi (telefono in orizzontale, finestre piccole): titolo nascosto */
-@media (max-height: 560px) {
-  :root { --top-h: 120px; }
-  .titolo { display: none; }
+/* Schermi bassi (telefono in orizzontale, finestre piccole): niente titolo in partita */
+@media (max-height: 600px) {
+  :root { --top-h: 136px; }
+  .screen-game .bar { position: absolute; left: 8px; right: 8px; pointer-events: none; }
+  .screen-game .bar-title { display: none; }
+  .screen-game .icon-button { pointer-events: auto; width: 36px; height: 36px; font-size: 1.2rem; }
+  .hud { margin: 0 44px; }
 }
 
+/* Animazioni ridotte: scelta del telefono oppure impostazione del gioco */
 @media (prefers-reduced-motion: reduce) {
   .candy.hint .candy-in { animation-duration: 1800ms; }
-  .overlay, .card, .card-star.on { animation: none; }
+  .bomb-halo, .rainbow-spin, .menu-candy, .map-node.current, .screen:not([hidden]), .loading-dots span { animation: none; }
+  .overlay, .card, .card-stars .star.on { animation: none; }
   .hud-bar-fill { transition: none; }
 }
+
+.reduced-motion .candy.hint .candy-in { animation-duration: 1800ms; }
+.reduced-motion .bomb-halo,
+.reduced-motion .rainbow-spin,
+.reduced-motion .menu-candy,
+.reduced-motion .map-node.current,
+.reduced-motion .screen:not([hidden]),
+.reduced-motion .overlay,
+.reduced-motion .card,
+.reduced-motion .card-stars .star.on { animation: none; }
+.reduced-motion .hud-bar-fill { transition: none; }
