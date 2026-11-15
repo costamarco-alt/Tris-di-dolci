@@ -2,6 +2,7 @@
 // Non contiene regole di gioco: anima soltanto i passi restituiti dal motore.
 import { CONFIG } from '../config.js';
 import { cascadeText, STRINGS } from '../strings.js';
+import { icon } from './dom.js';
 import { candySVG, pieceDefsSVG, PIECES } from './pieces.js';
 
 const A = CONFIG.ANIM;
@@ -28,12 +29,16 @@ export function createRenderer(boardEl, options = {}) {
   boardEl.textContent = '';
   const cellLayer = el('board-cells');
   const candyLayer = el('board-candies');
+  const iceLayer = el('board-ice');
   const fxLayer = el('board-fx');
-  boardEl.append(cellLayer, candyLayer, fxLayer);
+  boardEl.append(cellLayer, candyLayer, iceLayer, fxLayer);
 
   let rows = 8;
   let cols = 8;
   const items = new Map(); // id → { el, inner, r, c, color }
+  const cellEls = new Map(); // "r,c" → sfondo della casella (mostra la gelatina)
+  const iceEls = new Map(); // "r,c" → lastra di ghiaccio sopra la caramella
+  let handEl = null;
 
   const time = (ms) => (isReduced() ? ms * A.REDUCED_FACTOR : ms);
 
@@ -71,8 +76,12 @@ export function createRenderer(boardEl, options = {}) {
     boardEl.style.setProperty('--cols', cols);
     cellLayer.textContent = '';
     candyLayer.textContent = '';
+    iceLayer.textContent = '';
     fxLayer.textContent = '';
     items.clear();
+    cellEls.clear();
+    iceEls.clear();
+    handEl = null;
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
         const cell = board.cells[r][c];
@@ -80,9 +89,32 @@ export function createRenderer(boardEl, options = {}) {
         const bg = el('cell');
         bg.style.transform = place(r, c);
         cellLayer.append(bg);
+        cellEls.set(`${r},${c}`, bg);
+        setJelly(r, c, cell.jelly);
         if (cell.candy) addCandy(cell.candy, r, c);
+        if (cell.ice > 0) {
+          const ice = el('ice');
+          ice.style.transform = place(r, c);
+          iceLayer.append(ice);
+          iceEls.set(`${r},${c}`, ice);
+          setIce(r, c, cell.ice);
+        }
       }
     }
+  }
+
+  function setJelly(r, c, layers) {
+    const bg = cellEls.get(`${r},${c}`);
+    if (!bg) return;
+    bg.classList.toggle('jelly1', layers === 1);
+    bg.classList.toggle('jelly2', layers >= 2);
+  }
+
+  function setIce(r, c, layers) {
+    const ice = iceEls.get(`${r},${c}`);
+    if (!ice) return;
+    ice.classList.toggle('ice1', layers === 1);
+    ice.classList.toggle('ice2', layers >= 2);
   }
 
   function moveTo(item, r, c, duration, easing = 'ease-in-out') {
@@ -94,25 +126,25 @@ export function createRenderer(boardEl, options = {}) {
     return animate(item.el, [{ transform: from }, { transform: to }], { duration, easing });
   }
 
-  // Caduta con accelerazione e lieve rimbalzo.
-  function dropTo(item, fromR, toR, c) {
-    const from = place(fromR, c);
-    const to = place(toR, c);
-    item.r = toR;
-    item.c = c;
-    item.el.style.transform = to;
-    const distance = Math.max(1, toR - fromR);
+  // Caduta con accelerazione e lieve rimbalzo (anche in diagonale, sotto il ghiaccio).
+  function dropTo(item, from, to) {
+    const start = place(from.r, from.c);
+    const end = place(to.r, to.c);
+    item.r = to.r;
+    item.c = to.c;
+    item.el.style.transform = end;
+    const distance = Math.max(1, to.r - from.r);
     const duration = time(Math.min(A.FALL_MAX, A.FALL_BASE + A.FALL_PER_CELL * distance));
     if (isReduced()) {
-      return animate(item.el, [{ transform: from }, { transform: to }], { duration, easing: 'ease-in' });
+      return animate(item.el, [{ transform: start }, { transform: end }], { duration, easing: 'ease-in' });
     }
     return animate(
       item.el,
       [
-        { transform: from, easing: 'cubic-bezier(0.45, 0, 0.9, 0.6)' },
-        { transform: to, offset: 0.72, easing: 'ease-out' },
-        { transform: `${to} translateY(-7%)`, offset: 0.86, easing: 'ease-in' },
-        { transform: to },
+        { transform: start, easing: 'cubic-bezier(0.45, 0, 0.9, 0.6)' },
+        { transform: end, offset: 0.72, easing: 'ease-out' },
+        { transform: `${end} translateY(-7%)`, offset: 0.86, easing: 'ease-in' },
+        { transform: end },
       ],
       { duration }
     );
@@ -145,7 +177,7 @@ export function createRenderer(boardEl, options = {}) {
         const dot = el('particle');
         dot.style.left = `${((cell.c + 0.5) / cols) * 100}%`;
         dot.style.top = `${((cell.r + 0.5) / rows) * 100}%`;
-        dot.style.background = PIECES[cell.color]?.main ?? '#fff';
+        dot.style.background = cell.tint ?? PIECES[cell.color]?.main ?? '#fff';
         fxLayer.append(dot);
         const angle = (i / perCandy) * Math.PI * 2 + Math.random() * 1.2;
         const reach = size * (0.45 + Math.random() * 0.4);
@@ -202,13 +234,13 @@ export function createRenderer(boardEl, options = {}) {
     if (fall) {
       for (const move of fall.moves) {
         const item = items.get(move.id);
-        if (item) jobs.push(dropTo(item, move.from.r, move.to.r, move.to.c));
+        if (item) jobs.push(dropTo(item, move.from, move.to));
       }
     }
     if (spawn) {
       for (const candy of spawn.candies) {
         const item = addCandy(candy, candy.from.r, candy.from.c);
-        jobs.push(dropTo(item, candy.from.r, candy.to.r, candy.to.c));
+        jobs.push(dropTo(item, candy.from, candy.to));
       }
     }
     return Promise.all(jobs);
@@ -230,6 +262,42 @@ export function createRenderer(boardEl, options = {}) {
   }
 
   const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  // La gelatina perde uno strato.
+  function playJellyHit(step) {
+    for (const cell of step.cells) {
+      setJelly(cell.r, cell.c, cell.jelly);
+      const bg = cellEls.get(`${cell.r},${cell.c}`);
+      if (bg && !isReduced()) {
+        animate(bg, [{ opacity: 0.35 }, { opacity: 1 }], { duration: 260, easing: 'ease-out' });
+      }
+    }
+  }
+
+  // Il ghiaccio perde uno strato; all'ultimo la lastra si rompe e sparisce.
+  function playIceHit(step) {
+    for (const cell of step.cells) {
+      const key = `${cell.r},${cell.c}`;
+      const ice = iceEls.get(key);
+      if (!ice) continue;
+      const base = place(cell.r, cell.c);
+      if (cell.ice > 0) {
+        setIce(cell.r, cell.c, cell.ice);
+        animate(ice, [{ transform: `${base} scale(1.12)` }, { transform: base }], { duration: time(200), easing: 'ease-out' });
+      } else {
+        iceEls.delete(key);
+        animate(
+          ice,
+          [
+            { transform: base, opacity: 1 },
+            { transform: `${base} scale(1.25)`, opacity: 0 },
+          ],
+          { duration: time(240), easing: 'ease-out', fill: 'forwards' }
+        ).then(() => ice.remove());
+      }
+    }
+    particles(step.cells.map((cell) => ({ r: cell.r, c: cell.c, tint: '#cfefff' })));
+  }
 
   // Nasce uno speciale: una caramella nuova, oppure una esistente che si trasforma.
   function playCreateSpecial(step) {
@@ -403,6 +471,15 @@ export function createRenderer(boardEl, options = {}) {
         case 'shuffle':
           await playShuffle(step);
           break;
+        case 'jellyHit':
+          playJellyHit(step);
+          break;
+        case 'iceHit':
+          playIceHit(step);
+          break;
+        case 'bonus':
+          await floatText(STRINGS.mosseAvanzate(step.points), 'float-text-bonus');
+          break;
         default:
           break; // passi che l'interfaccia non conosce ancora
       }
@@ -425,9 +502,38 @@ export function createRenderer(boardEl, options = {}) {
     for (const item of items.values()) item.el.classList.remove('hint');
   }
 
+  // Manina che mostra lo swipe (livello 1): va avanti e indietro tra due caselle.
+  function showHand(move) {
+    hideHand();
+    if (!move) return;
+    handEl = icon('hand', 'hand');
+    handEl.style.left = pct((move.from.c + 0.5) / cols);
+    handEl.style.top = pct((move.from.r + 0.5) / rows);
+    fxLayer.append(handEl);
+    const dx = (move.to.c - move.from.c) * (fxLayer.clientWidth / cols);
+    const dy = (move.to.r - move.from.r) * (fxLayer.clientHeight / rows);
+    if (typeof handEl.animate === 'function') {
+      handEl.animate(
+        [
+          { transform: 'translate(0, 0) scale(1.15)', opacity: 0 },
+          { transform: 'translate(0, 0) scale(1)', opacity: 1, offset: 0.15 },
+          { transform: 'translate(0, 0) scale(0.9)', opacity: 1, offset: 0.3 },
+          { transform: `translate(${dx}px, ${dy}px) scale(0.9)`, opacity: 1, offset: 0.7 },
+          { transform: `translate(${dx}px, ${dy}px) scale(1.1)`, opacity: 0 },
+        ],
+        { duration: 1700, iterations: Infinity, easing: 'ease-in-out' }
+      );
+    }
+  }
+
+  function hideHand() {
+    handEl?.remove();
+    handEl = null;
+  }
+
   // Coordinate dello schermo → casella del tabellone.
   function cellFromPoint(x, y) {
-    const rect = boardEl.getBoundingClientRect();
+    const rect = candyLayer.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return null;
     const c = Math.floor(((x - rect.left) / rect.width) * cols);
     const r = Math.floor(((y - rect.top) / rect.height) * rows);
@@ -435,7 +541,7 @@ export function createRenderer(boardEl, options = {}) {
     return { r, c };
   }
 
-  const cellSize = () => boardEl.getBoundingClientRect().width / cols;
+  const cellSize = () => candyLayer.getBoundingClientRect().width / cols;
 
-  return { draw, play, setSelected, showHint, clearHint, cellFromPoint, cellSize, floatText };
+  return { draw, play, setSelected, showHint, clearHint, showHand, hideHand, cellFromPoint, cellSize, floatText };
 }

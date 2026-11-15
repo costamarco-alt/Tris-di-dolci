@@ -32,13 +32,13 @@ Le fasi del progetto, nell'ordine. Ogni fase ha il suo prompt nella Parte C di `
   - [x] Attivazione e reazioni a catena
   - [x] Le 6 combinazioni speciale + speciale
   - [x] Grafica, animazioni, punteggi bonus, vibrazione
-- [ ] **Fase 4 — Livelli, mappa e salvataggio**
-  - [ ] Gelatina e ghiaccio nel motore
-  - [ ] Obiettivi: punteggio, raccogli colori, gelatina, ghiaccio
-  - [ ] 30 livelli con tip e manina al livello 1
-  - [ ] Menu, mappa dei livelli, fine livello, impostazioni
-  - [ ] Salvataggio in `localStorage`
-  - [ ] Test di validità di tutti i livelli
+- [x] **Fase 4 — Livelli, mappa e salvataggio**
+  - [x] Gelatina e ghiaccio nel motore
+  - [x] Obiettivi: punteggio, raccogli colori, gelatina, ghiaccio
+  - [x] 30 livelli con tip e manina al livello 1
+  - [x] Menu, mappa dei livelli, fine livello, impostazioni
+  - [x] Salvataggio in `localStorage`
+  - [x] Test di validità di tutti i livelli
 - [ ] **Fase 5 — Bilanciamento della difficoltà**
   - [ ] `tools/simulate.js` (bot, 200 partite per livello)
   - [ ] Livelli regolati sugli obiettivi di vittoria
@@ -84,3 +84,12 @@ Le fasi del progetto, nell'ordine. Ogni fase ha il suo prompt nella Parte C di `
 - **Fase 3** — Un Arcobaleno colpito da un'esplosione (cioè non scambiato dal giocatore) elimina il colore più presente sul tabellone in quel momento.
 - **Fase 3** — Un Razzo o una Bomba scambiati con una caramella normale seguono la regola solita: serve un match. Entrano nei match con il loro colore e si attivano quando vengono eliminati.
 - **Fase 3** — Vibrazione: 10 ms quando nasce uno speciale, 18 ms quando si attiva, una breve sequenza alla vittoria. L'interruttore nelle impostazioni arriva con la Fase 4.
+- **Fase 4** — Ghiaccio: una caramella ghiacciata colpita perde uno strato e resta dov'è (passo `iceHit` `{ cells: [{ r, c, ice }] }`). Tre caramelle ghiacciate allineate si liberano alla prima eliminazione e vengono tolte a quella dopo. Uno speciale ghiacciato non si attiva finché è nel ghiaccio. Uno speciale non nasce mai sopra una caramella ghiacciata: nasce in un'altra casella liberata del gruppo.
+- **Fase 4** — Gelatina: passo `jellyHit` `{ cells: [{ r, c, jelly }] }`, subito dopo il `clear`. Nel layout una casella è o gelatina o ghiaccio, non tutte e due.
+- **Fase 4** — Gravità con il ghiaccio: la caramella ghiacciata non cade e blocca la colonna. Le caselle vuote sotto si riempiono in diagonale dalla casella in alto a sinistra o in alto a destra (passo `fall` con `diagonal: true`); se non c'è nessuna caramella libera vicino, la casella resta vuota finché il ghiaccio non si rompe.
+- **Fase 4** — Mosse avanzate: per gli obiettivi diversi dal punteggio, alla vittoria diventano 150 punti l'una (passo `bonus` `{ moves, points }`). Per l'obiettivo "punteggio" si giocano sempre tutte le mosse.
+- **Fase 4** — "Obiettivi misti" (livelli 21–25) significa che i livelli alternano i quattro tipi di obiettivo; ogni livello ne ha uno solo. I contatori di gelatina e ghiaccio contano gli strati rimasti.
+- **Fase 4** — Se nemmeno il rimescolo trova una mossa (caso estremo, mai visto nelle simulazioni) il livello finisce come perso invece di bloccarsi.
+- **Fase 4** — Prima di ogni livello compare una scheda con l'obiettivo e, se c'è, il consiglio (`tip`). La mappa va dall'alto (livello 1) verso il basso.
+- **Fase 4** — Azzerare i progressi cancella stelle e livelli sbloccati ma lascia le impostazioni.
+- **Fase 4** — Mosse e soglie delle stelle dei 30 livelli sono una prima taratura fatta con un bot; la messa a punto vera è la Fase 5.

@@ -9,13 +9,21 @@
 </head>
 <body>
   <div id="app" class="app">
-    <header class="top">
-      <h1 class="titolo">Tris di Dolci</h1>
-      <div id="hud" class="hud"></div>
-    </header>
-    <main class="board-area">
-      <div id="board" class="board" role="application"></div>
-    </main>
+    <section id="screen-menu" class="screen screen-menu"></section>
+    <section id="screen-map" class="screen screen-map" hidden></section>
+    <section id="screen-game" class="screen screen-game" hidden>
+      <header class="top">
+        <div class="bar">
+          <button id="btn-back" class="icon-button" type="button"></button>
+          <div class="bar-title">Tris di Dolci</div>
+          <button id="btn-settings" class="icon-button" type="button"></button>
+        </div>
+        <div id="hud" class="hud"></div>
+      </header>
+      <main class="board-area">
+        <div id="board" class="board" role="application"></div>
+      </main>
+    </section>
     <div id="overlay" class="overlay" hidden></div>
   </div>
   <noscript><p class="noscript">Per giocare serve JavaScript attivo.</p></noscript>

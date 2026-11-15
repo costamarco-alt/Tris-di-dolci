@@ -12,8 +12,9 @@ Il progetto si costruisce a fasi: l'elenco completo è in [`ROADMAP.md`](./ROADM
 - ✅ Fase 1 — motore di gioco (le regole, senza grafica)
 - ✅ Fase 2 — tabellone giocabile sul telefono
 - ✅ Fase 3 — caramelle speciali
+- ✅ Fase 4 — 30 livelli, mappa, impostazioni e salvataggio
 
-Si può già giocare un livello di prova: 25 mosse per arrivare a 3000 punti.
+Ci sono 30 livelli: si sbloccano uno dopo l'altro e i progressi restano salvati sul telefono.
 
 ## Come si gioca
 
@@ -49,6 +50,21 @@ Da quel momento ogni merge su `main` aggiorna il gioco da solo.
 4. Apri http://localhost:8000 nel browser.
 
 > Aprire `index.html` con un doppio clic non funziona: serve un piccolo server, anche locale.
+
+### Obiettivi dei livelli
+
+| Livelli | Obiettivo |
+|---|---|
+| 1–5 | fare un certo punteggio |
+| 6–10 | raccogliere caramelle di un colore |
+| 11–15 | togliere la **gelatina** (elimina le caramelle che ci stanno sopra; quella scura va colpita due volte) |
+| 16–20 | rompere il **ghiaccio** (le caramelle ghiacciate non si muovono: includile in un tris) |
+| 21–25 | tabelloni con forme diverse |
+| 26–30 | sei colori e ostacoli insieme |
+
+Ogni livello vinto dà da 1 a 3 stelle, in base al punteggio. Le mosse che avanzi diventano punti.
+
+Dal menu, in **Impostazioni**, puoi spegnere la vibrazione, ridurre le animazioni o azzerare i progressi.
 
 ## Test automatici
 
