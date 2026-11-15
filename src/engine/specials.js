@@ -149,7 +149,8 @@ export function expandClear(state, seeds, steps, done = new Set()) {
     result.push({ r: pos.r, c: pos.c });
 
     const candy = cell.candy;
-    if (!candy.special || done.has(candy.id)) continue;
+    // Uno speciale ghiacciato perde solo uno strato di ghiaccio: non si attiva.
+    if (!candy.special || cell.ice > 0 || done.has(candy.id)) continue;
     done.add(candy.id);
 
     const step = { type: 'activate', id: candy.id, r: pos.r, c: pos.c, special: candy.special, color: candy.color };

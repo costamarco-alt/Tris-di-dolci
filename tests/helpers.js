@@ -18,6 +18,10 @@ export function stateFromColors(lines, { colors = 5, seed = 1, moves = 10, level
     score: 0,
     collected: {},
     maxCascade: 0,
+    bonus: 0,
+    stuck: false,
+    jellyTotal: 0,
+    iceTotal: 0,
   };
 }
 

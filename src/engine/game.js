@@ -26,7 +26,14 @@ export function createGame(levelDef, seed = 1) {
     score: 0,
     collected: {}, // caramelle eliminate per colore
     maxCascade: 0,
+    bonus: 0, // punti delle mosse avanzate
+    stuck: false, // vero solo se nemmeno il rimescolo trova una mossa
+    jellyTotal: 0,
+    iceTotal: 0,
   };
+  const layers = countLayers(state.board);
+  state.jellyTotal = layers.jelly;
+  state.iceTotal = layers.ice;
 
   for (let attempt = 0; attempt < CONFIG.MAX_GENERATION_ATTEMPTS; attempt++) {
     fillWithoutMatches(state.board, colors, state.rng, (color) =>
@@ -76,23 +83,65 @@ export function trySwap(state, from, to) {
   const cascades = resolveBoard(state, steps, combo ? { combo: { from, to } } : { swap: { from, to } });
   state.maxCascade = Math.max(state.maxCascade, cascades);
 
+  // Obiettivo completato con mosse avanzate: diventano punti.
+  if (getStatus(state) === 'won' && state.movesLeft > 0 && state.bonus === 0) {
+    state.bonus = state.movesLeft * CONFIG.LEFTOVER_MOVE_BONUS;
+    state.score += state.bonus;
+    steps.push({ type: 'bonus', moves: state.movesLeft, points: state.bonus });
+  }
+
   if (getStatus(state) === 'playing' && !hasValidMove(board)) {
-    steps.push(shuffleBoard(state));
+    const shuffle = shuffleBoard(state);
+    steps.push(shuffle);
+    if (!shuffle.success) state.stuck = true;
   }
   return { valid: true, steps };
 }
 
-function goalReached(state) {
-  const goal = state.level.goal;
-  if (!goal || goal.type === 'score') return state.score >= (goal?.target ?? 0);
-  return false; // gli altri obiettivi arrivano con la Fase 4
+// Strati di gelatina e di ghiaccio ancora presenti sul tabellone.
+export function countLayers(board) {
+  let jelly = 0;
+  let ice = 0;
+  for (const row of board.cells) {
+    for (const cell of row) {
+      if (cell.hole) continue;
+      jelly += cell.jelly;
+      ice += cell.ice;
+    }
+  }
+  return { jelly, ice };
+}
+
+// Avanzamento dell'obiettivo, per l'HUD:
+//   score   → { type, current, target, done }
+//   collect → { type, items: [{ color, current, count, done }], done }
+//   jelly / ice → { type, remaining, total, done }
+export function getGoalProgress(state) {
+  const goal = state.level.goal ?? { type: 'score', target: 0 };
+  if (goal.type === 'collect') {
+    const items = goal.items.map((item) => {
+      const current = Math.min(item.count, state.collected[item.color] ?? 0);
+      return { color: item.color, current, count: item.count, done: current >= item.count };
+    });
+    return { type: 'collect', items, done: items.every((item) => item.done) };
+  }
+  if (goal.type === 'jelly' || goal.type === 'ice') {
+    const remaining = countLayers(state.board)[goal.type];
+    const total = goal.type === 'jelly' ? state.jellyTotal : state.iceTotal;
+    return { type: goal.type, remaining, total, done: remaining === 0 };
+  }
+  const target = goal.target ?? 0;
+  return { type: 'score', current: state.score, target, done: state.score >= target };
 }
 
 // 'playing' | 'won' | 'lost'
-// Obiettivo "punteggio": si giocano tutte le mosse, poi si vince se il target è raggiunto.
+// - Obiettivo "punteggio": si giocano tutte le mosse, poi si vince se il target è raggiunto.
+// - Altri obiettivi: si vince appena l'obiettivo è completato.
 export function getStatus(state) {
-  if (state.movesLeft > 0) return 'playing';
-  return goalReached(state) ? 'won' : 'lost';
+  const progress = getGoalProgress(state);
+  if (progress.type !== 'score' && progress.done) return 'won';
+  if (state.movesLeft > 0 && !state.stuck) return 'playing';
+  return progress.done ? 'won' : 'lost';
 }
 
 // Stelle (0..3) in base al punteggio. Un livello vinto dà sempre almeno 1 stella.
