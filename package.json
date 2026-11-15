@@ -1,0 +1,10 @@
+{
+  "name": "tris-di-dolci",
+  "version": "0.1.0",
+  "description": "Gioco puzzle match-3 a tema caramelle, senza pubblicità e senza dipendenze",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  }
+}
