@@ -11,6 +11,7 @@ Il progetto si costruisce a fasi: l'elenco completo è in [`ROADMAP.md`](./ROADM
 - ✅ Fase 0 — impostazione del progetto
 - ✅ Fase 1 — motore di gioco (le regole, senza grafica)
 - ✅ Fase 2 — tabellone giocabile sul telefono
+- ✅ Fase 3 — caramelle speciali
 
 Si può già giocare un livello di prova: 25 mosse per arrivare a 3000 punti.
 
@@ -20,6 +21,16 @@ Si può già giocare un livello di prova: 25 mosse per arrivare a 3000 punti.
 - Allinea 3 o più caramelle uguali, in riga o in colonna, per eliminarle.
 - Se lo scambio non allinea niente, le caramelle tornano al loro posto e la mossa non si consuma.
 - Se resti fermo 5 secondi, una mossa possibile inizia a pulsare.
+
+### Caramelle speciali
+
+| Come si crea | Nome | Cosa fa |
+|---|---|---|
+| 4 in fila | **Razzo** (ha due frecce) | elimina tutta la riga o tutta la colonna |
+| forma a L o a T | **Bomba** (ha un alone che pulsa) | esplode tutto intorno |
+| 5 in fila | **Arcobaleno** (sfera a spicchi) | scambialo con una caramella: elimina tutte quelle di quel colore |
+
+Razzi e Bombe si attivano quando fanno parte di un match o vengono colpiti. Prova anche a **scambiare due speciali tra loro**: l'effetto è molto più grande.
 
 ## Come si prova
 

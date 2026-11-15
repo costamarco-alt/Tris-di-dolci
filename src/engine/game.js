@@ -5,6 +5,7 @@ import { hasMatches } from './match.js';
 import { hasValidMove, isSwappable, shuffleBoard, swapCandies } from './moves.js';
 import { resolveBoard } from './resolve.js';
 import { createRng } from './rng.js';
+import { isSpecialSwap } from './specials.js';
 
 export { findValidMoves, getHint } from './moves.js';
 
@@ -40,6 +41,7 @@ export function createGame(levelDef, seed = 1) {
 // → { valid, steps }: lo stato cambia solo se valid è true.
 // Se lo scambio non crea un match, le caramelle tornano al loro posto
 // (passi 'swap' + 'swapBack') e la mossa non viene consumata.
+// Eccezione: gli scambi tra speciali e quelli con un Arcobaleno valgono sempre.
 export function trySwap(state, from, to) {
   const { board } = state;
   if (
@@ -59,8 +61,11 @@ export function trySwap(state, from, to) {
   const swapStep = describe();
   const steps = [swapStep];
 
+  // Due speciali tra loro, o un Arcobaleno con qualsiasi caramella: sempre valido.
+  const combo = isSpecialSwap(board.cells[from.r][from.c].candy, board.cells[to.r][to.c].candy);
+
   swapCandies(board, from, to);
-  if (!hasMatches(board)) {
+  if (!combo && !hasMatches(board)) {
     swapCandies(board, from, to);
     steps.push({ ...swapStep, type: 'swapBack' });
     return { valid: false, steps };
@@ -68,7 +73,7 @@ export function trySwap(state, from, to) {
 
   state.movesLeft--;
   state.movesUsed++;
-  const cascades = resolveBoard(state, steps);
+  const cascades = resolveBoard(state, steps, combo ? { combo: { from, to } } : { swap: { from, to } });
   state.maxCascade = Math.max(state.maxCascade, cascades);
 
   if (getStatus(state) === 'playing' && !hasValidMove(board)) {

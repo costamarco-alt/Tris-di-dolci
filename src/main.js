@@ -17,7 +17,19 @@ const isReducedMotion = () => Boolean(motionQuery?.matches);
 
 const hud = createHud(document.getElementById('hud'));
 const screens = createScreens(document.getElementById('overlay'));
-const renderer = createRenderer(boardEl, { isReducedMotion });
+// Vibrazione breve, solo se il telefono la supporta.
+function vibrate(pattern) {
+  try {
+    navigator.vibrate?.(pattern);
+  } catch {
+    // niente vibrazione: non è un problema
+  }
+}
+
+const renderer = createRenderer(boardEl, {
+  isReducedMotion,
+  onSpecial: (kind) => vibrate(kind === 'activate' ? 18 : 10),
+});
 boardEl.setAttribute('aria-label', STRINGS.tabellone);
 
 let state = null;
@@ -55,7 +67,7 @@ function startLevel(id) {
 }
 
 function onStep(step) {
-  if (step.type === 'clear') {
+  if (step.type === 'clear' || step.type === 'createSpecial') {
     shownScore += step.points;
     hud.setScore(shownScore);
   }
@@ -88,6 +100,7 @@ async function handleSwap(from, to) {
   }
   phase = 'ended';
   const level = state.level;
+  if (status === 'won') vibrate([30, 60, 30]);
   screens.showEnd(
     { won: status === 'won', score: state.score, stars: getStars(state), target: level.goal?.target ?? 0 },
     () => startLevel(level.id)

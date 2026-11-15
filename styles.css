@@ -238,6 +238,52 @@ body {
   will-change: transform, opacity;
 }
 
+.fx-streak {
+  position: absolute;
+  border-radius: 999px;
+  box-shadow: 0 0 12px 4px rgba(255, 255, 255, 0.9);
+  will-change: transform, opacity;
+}
+
+.fx-wave {
+  position: absolute;
+  border-radius: 50%;
+  border: 6px solid #fff;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0.75) 100%);
+  will-change: transform, opacity;
+}
+
+.fx-ray {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px 3px #fff;
+  will-change: transform, opacity;
+}
+
+/* Bomba: alone che pulsa. Arcobaleno: gli spicchi girano piano. */
+.bomb-halo {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: halo-pulse 1100ms ease-in-out infinite;
+}
+
+.rainbow-spin {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: rainbow-spin 6s linear infinite;
+}
+
+@keyframes halo-pulse {
+  0%, 100% { transform: scale(0.82); opacity: 0.55; }
+  50% { transform: scale(1.04); opacity: 1; }
+}
+
+@keyframes rainbow-spin {
+  to { transform: rotate(360deg); }
+}
+
 .float-text {
   position: absolute;
   left: 0;
@@ -374,6 +420,7 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .candy.hint .candy-in { animation-duration: 1800ms; }
+  .bomb-halo, .rainbow-spin { animation: none; }
   .overlay, .card, .card-star.on { animation: none; }
   .hud-bar-fill { transition: none; }
 }

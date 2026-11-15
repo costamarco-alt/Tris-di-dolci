@@ -16,6 +16,7 @@ const place = (r, c) => `translate(${c * 100}%, ${r * 100}%)`;
 
 export function createRenderer(boardEl, options = {}) {
   const isReduced = options.isReducedMotion ?? (() => false);
+  const onSpecial = options.onSpecial ?? (() => {});
 
   if (!document.getElementById('tdd-defs')) {
     const holder = document.createElement('div');
@@ -45,11 +46,11 @@ export function createRenderer(boardEl, options = {}) {
   function addCandy(candy, r, c) {
     const node = el('candy');
     const inner = el('candy-in');
-    inner.innerHTML = candySVG(candy.color);
+    inner.innerHTML = candySVG(candy.color, candy.special);
     node.append(inner);
     node.style.transform = place(r, c);
     candyLayer.append(node);
-    const item = { el: node, inner, r, c, color: candy.color };
+    const item = { el: node, inner, r, c, color: candy.color, special: candy.special ?? null };
     items.set(candy.id, item);
     return item;
   }
@@ -221,11 +222,140 @@ export function createRenderer(boardEl, options = {}) {
       if (!item) continue;
       if (item.color !== candy.color) {
         item.color = candy.color;
-        item.inner.innerHTML = candySVG(candy.color);
+        item.inner.innerHTML = candySVG(candy.color, candy.special);
       }
       jobs.push(moveTo(item, candy.to.r, candy.to.c, time(A.SHUFFLE)));
     }
     return Promise.all(jobs);
+  }
+
+  const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  // Nasce uno speciale: una caramella nuova, oppure una esistente che si trasforma.
+  function playCreateSpecial(step) {
+    let item = items.get(step.id);
+    if (item) {
+      item.special = step.special;
+      item.inner.innerHTML = candySVG(step.color, step.special);
+    } else {
+      item = addCandy(step, step.r, step.c);
+    }
+    if (!step.converted) onSpecial('create');
+    animate(
+      item.inner,
+      [
+        { transform: 'scale(0.2)', opacity: 0.4 },
+        { transform: 'scale(1.25)', opacity: 1, offset: 0.6 },
+        { transform: 'scale(1)', opacity: 1 },
+      ],
+      { duration: time(260), easing: 'ease-out' }
+    );
+  }
+
+  const pct = (value) => `${(value * 100).toFixed(3)}%`;
+
+  function fx(className, style, keyframes, duration) {
+    const node = el(className);
+    Object.assign(node.style, style);
+    fxLayer.append(node);
+    animate(node, keyframes, { duration, easing: 'ease-out' }).then(() => node.remove());
+  }
+
+  // Scia del Razzo lungo una riga o una colonna, a partire dalla casella (r, c).
+  function streak(r, c, vertical, color) {
+    const style = vertical
+      ? { left: pct(c / cols), top: '0', width: pct(1 / cols), height: '100%', transformOrigin: `50% ${pct((r + 0.5) / rows)}` }
+      : { left: '0', top: pct(r / rows), width: '100%', height: pct(1 / rows), transformOrigin: `${pct((c + 0.5) / cols)} 50%` };
+    style.background = color;
+    const axis = vertical ? 'scaleY' : 'scaleX';
+    const cross = vertical ? 'scaleX' : 'scaleY';
+    fx(
+      'fx-streak',
+      style,
+      [
+        { transform: `${axis}(0.05) ${cross}(0.9)`, opacity: 0.95 },
+        { transform: `${axis}(1) ${cross}(0.6)`, opacity: 0.85, offset: 0.55 },
+        { transform: `${axis}(1) ${cross}(0.1)`, opacity: 0 },
+      ],
+      time(320)
+    );
+  }
+
+  // Onda della Bomba: un cerchio che si allarga, largo `span` caselle.
+  function wave(r, c, span, color) {
+    fx(
+      'fx-wave',
+      {
+        left: pct((c + 0.5) / cols),
+        top: pct((r + 0.5) / rows),
+        width: pct(span / cols),
+        height: pct(span / rows),
+        borderColor: color,
+      },
+      [
+        { transform: 'translate(-50%, -50%) scale(0.15)', opacity: 1 },
+        { transform: 'translate(-50%, -50%) scale(1)', opacity: 0.7, offset: 0.6 },
+        { transform: 'translate(-50%, -50%) scale(1.15)', opacity: 0 },
+      ],
+      time(380)
+    );
+  }
+
+  // Raggi dell'Arcobaleno: una scintilla parte dalla sfera verso ogni bersaglio.
+  function rays(r, c, targets, color) {
+    const w = fxLayer.clientWidth / cols;
+    const h = fxLayer.clientHeight / rows;
+    for (const target of targets.slice(0, 40)) {
+      const dx = (target.c - c) * w;
+      const dy = (target.r - r) * h;
+      fx(
+        'fx-ray',
+        { left: pct((c + 0.5) / cols), top: pct((r + 0.5) / rows), background: color },
+        [
+          { transform: 'translate(-50%, -50%) scale(0.6)', opacity: 1 },
+          { transform: `translate(calc(-50% + ${dx.toFixed(1)}px), calc(-50% + ${dy.toFixed(1)}px)) scale(1.3)`, opacity: 1, offset: 0.8 },
+          { transform: `translate(calc(-50% + ${dx.toFixed(1)}px), calc(-50% + ${dy.toFixed(1)}px)) scale(0.2)`, opacity: 0 },
+        ],
+        time(300)
+      );
+    }
+  }
+
+  // Uno speciale si attiva: mostra l'effetto e restituisce quanto aspettare
+  // prima di passare al passo successivo.
+  function playActivate(step) {
+    onSpecial('activate');
+    const color = PIECES[step.color]?.main ?? '#fff';
+    const { r, c } = step;
+    if (isReduced()) return 0;
+    switch (step.combo) {
+      case 'rocket+rocket':
+        streak(r, c, false, color);
+        streak(r, c, true, color);
+        return time(120);
+      case 'rocket+bomb':
+        for (let d = -1; d <= 1; d++) {
+          if (r + d >= 0 && r + d < rows) streak(r + d, c, false, color);
+          if (c + d >= 0 && c + d < cols) streak(r, c + d, true, color);
+        }
+        return time(140);
+      case 'bomb+bomb':
+        wave(r, c, 5, color);
+        return time(160);
+      case 'rainbow+rainbow':
+        wave(r, c, Math.max(rows, cols) * 2.4, '#fff');
+        return time(260);
+      default:
+        break;
+    }
+    if (step.special === 'rocketH') streak(r, c, false, color);
+    else if (step.special === 'rocketV') streak(r, c, true, color);
+    else if (step.special === 'bomb') wave(r, c, 3, color);
+    else {
+      rays(r, c, step.cells, PIECES[step.targetColor]?.light ?? '#fff');
+      return time(280);
+    }
+    return time(70);
   }
 
   // Anima in ordine i passi restituiti dal motore.
@@ -247,6 +377,14 @@ export function createRenderer(boardEl, options = {}) {
         case 'clear':
           await playClear(step);
           break;
+        case 'createSpecial':
+          playCreateSpecial(step);
+          break;
+        case 'activate': {
+          const pause = playActivate(step);
+          if (pause > 0) await wait(pause);
+          break;
+        }
         case 'fall': {
           // Caduta e arrivo delle nuove caramelle si animano insieme.
           const next = steps[i + 1];

@@ -27,11 +27,11 @@ Le fasi del progetto, nell'ordine. Ogni fase ha il suo prompt nella Parte C di `
   - [x] Livello di prova (8×8, 5 colori, 25 mosse, 3000 punti)
   - [x] Schermata finale vinto/perso con "Riprova"
   - [x] Suggerimento dopo 5 secondi
-- [ ] **Fase 3 — Caramelle speciali**
-  - [ ] Creazione di Razzo, Bomba e Arcobaleno con la priorità prevista
-  - [ ] Attivazione e reazioni a catena
-  - [ ] Le 6 combinazioni speciale + speciale
-  - [ ] Grafica, animazioni, punteggi bonus, vibrazione
+- [x] **Fase 3 — Caramelle speciali**
+  - [x] Creazione di Razzo, Bomba e Arcobaleno con la priorità prevista
+  - [x] Attivazione e reazioni a catena
+  - [x] Le 6 combinazioni speciale + speciale
+  - [x] Grafica, animazioni, punteggi bonus, vibrazione
 - [ ] **Fase 4 — Livelli, mappa e salvataggio**
   - [ ] Gelatina e ghiaccio nel motore
   - [ ] Obiettivi: punteggio, raccogli colori, gelatina, ghiaccio
@@ -77,3 +77,10 @@ Le fasi del progetto, nell'ordine. Ogni fase ha il suo prompt nella Parte C di `
 - **Fase 2** — Caduta e arrivo delle nuove caramelle (passi `fall` e `spawn`) vengono animati insieme.
 - **Fase 2** — Aprendo la pagina con `?debug` (e, volendo, `&seed=7` per una partita sempre uguale) si attiva `window.trisDebug`, usato solo per le prove automatiche con il browser.
 - **Fase 2** — Provato con Chromium a 390×844, 412×915 e 360×640: swipe, tocca-tocca, partita intera, schermata finale, "Riprova" e suggerimento dopo 5 secondi. Nessun errore in console, nessuna risorsa esterna.
+- **Fase 3** — Quando nasce uno speciale, tutte le caramelle del match vengono eliminate e nella casella giusta compare una caramella **nuova** (con un id nuovo): passo `createSpecial` `{ id, r, c, color, special, points }`. Il bonus di creazione non viene moltiplicato dalla cascata.
+- **Fase 3** — Passo `activate`: `{ id, r, c, special, color, cells, combo?, targetColor? }`. Gli `activate` di un'eliminazione arrivano prima del relativo `clear`, nell'ordine della reazione a catena. Ogni speciale si attiva una volta sola.
+- **Fase 3** — Le combinazioni partono dalla **casella di arrivo** dello scambio. Dopo una combinazione le cascate continuano dal numero 2.
+- **Fase 3** — Arcobaleno + Razzo: le caramelle di quel colore diventano Razzi con orientamento casuale (passi `createSpecial` con `converted: true`, stesso id). Arcobaleno + Bomba: uguale, con le Bombe.
+- **Fase 3** — Un Arcobaleno colpito da un'esplosione (cioè non scambiato dal giocatore) elimina il colore più presente sul tabellone in quel momento.
+- **Fase 3** — Un Razzo o una Bomba scambiati con una caramella normale seguono la regola solita: serve un match. Entrano nei match con il loro colore e si attivano quando vengono eliminati.
+- **Fase 3** — Vibrazione: 10 ms quando nasce uno speciale, 18 ms quando si attiva, una breve sequenza alla vittoria. L'interruttore nelle impostazioni arriva con la Fase 4.

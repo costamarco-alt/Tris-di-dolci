@@ -23,13 +23,15 @@ test('resolve: clearMatches svuota le caselle e assegna i punti', () => {
 test('resolve: il moltiplicatore della cascata moltiplica i punti', () => {
   const state = stateFromColors(['0000', '1212']);
   clearMatches(state, findMatches(state.board), 3, []);
-  assert.equal(state.score, 4 * 10 * 3);
+  assert.equal(state.score, 4 * 10 * 3 + 60, 'punti delle caramelle più bonus del Razzo');
 });
 
 test('resolve: una forma a L conta ogni caramella una volta sola', () => {
   const state = stateFromColors(['012', '021', '000']);
-  clearMatches(state, findMatches(state.board), 1, []);
-  assert.equal(state.score, 50);
+  const steps = [];
+  clearMatches(state, findMatches(state.board), 1, steps);
+  assert.equal(steps.find((s) => s.type === 'clear').points, 50);
+  assert.equal(state.score, 50 + 120, 'punti delle caramelle più bonus della Bomba');
 });
 
 test('resolve: gravità — le caramelle cadono mantenendo l\'ordine e gli id', () => {

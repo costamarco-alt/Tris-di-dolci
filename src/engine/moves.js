@@ -2,6 +2,7 @@
 import { CONFIG } from '../config.js';
 import { fillWithoutMatches, getCell } from './board.js';
 import { findMatches, hasMatches } from './match.js';
+import { isSpecialSwap } from './specials.js';
 
 // Una casella si può scambiare se ha una caramella non ghiacciata.
 export function isSwappable(board, pos) {
@@ -17,6 +18,24 @@ export function swapCandies(board, a, b) {
   cellB.candy = tmp;
 }
 
+// Stima (volutamente semplice) delle caramelle eliminate da uno scambio speciale.
+function estimateCombo(board, a, b) {
+  const rainbows = [a, b].filter((candy) => candy.special === 'rainbow').length;
+  if (rainbows === 2) return board.rows * board.cols;
+  if (rainbows === 1) {
+    const partner = a.special === 'rainbow' ? b : a;
+    let count = 1;
+    for (const row of board.cells) {
+      for (const cell of row) if (cell.candy && cell.candy.color === partner.color) count++;
+    }
+    return partner.special ? count * 4 : count;
+  }
+  const bombs = [a, b].filter((candy) => candy.special === 'bomb').length;
+  if (bombs === 2) return 25;
+  if (bombs === 1) return 3 * (board.rows + board.cols) - 9;
+  return board.rows + board.cols - 1;
+}
+
 // Scorre tutte le coppie di caselle adiacenti scambiabili.
 // visit(from, to, cleared) riceve quante caramelle verrebbero eliminate subito;
 // se restituisce true la ricerca si ferma.
@@ -27,7 +46,14 @@ function scanMoves(board, visit) {
       if (!isSwappable(board, from)) continue;
       for (const to of [{ r, c: c + 1 }, { r: r + 1, c }]) {
         if (!isSwappable(board, to)) continue;
-        if (board.cells[r][c].candy.color === board.cells[to.r][to.c].candy.color) continue;
+        const a = board.cells[r][c].candy;
+        const b = board.cells[to.r][to.c].candy;
+        if (isSpecialSwap(a, b)) {
+          // Sempre valido: si stima quante caramelle salteranno.
+          if (visit(from, to, estimateCombo(board, a, b))) return;
+          continue;
+        }
+        if (a.color === b.color) continue;
         swapCandies(board, from, to);
         let cleared = 0;
         for (const group of findMatches(board)) cleared += group.cells.length;
