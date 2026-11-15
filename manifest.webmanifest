@@ -1,0 +1,19 @@
+{
+  "name": "Tris di Dolci",
+  "short_name": "Tris di Dolci",
+  "description": "Gioco puzzle a tema caramelle: allinea tre dolci uguali. Senza pubblicità, senza vite, senza acquisti.",
+  "lang": "it",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffe3ec",
+  "theme_color": "#ffd1e6",
+  "categories": ["games"],
+  "icons": [
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

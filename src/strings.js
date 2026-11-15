@@ -62,6 +62,8 @@ export const STRINGS = {
   azzerato: 'Progressi azzerati.',
   chiudi: 'Chiudi',
 
+  nuovaVersione: 'Nuova versione disponibile — tocca per aggiornare',
+
   cascate: {
     2: 'Bene!',
     3: 'Gustoso!',

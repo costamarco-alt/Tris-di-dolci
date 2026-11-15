@@ -48,6 +48,7 @@ src/
     screens.js             menu, mappa dei livelli, fine livello, impostazioni
 tests/                     test per il test runner integrato di Node (*.test.js)
 tools/simulate.js          bot che gioca i livelli per il bilanciamento (Fase 5)
+tools/versione.js          aggiorna in sw.js l'elenco dei file e il numero di versione (Fase 6)
 ROADMAP.md                 fasi con checklist + registro delle decisioni
 README.md                  per Marco: cos'è, come si gioca, come si pubblica
 ```
@@ -224,6 +225,7 @@ Tutto va in try/catch: se il salvataggio non funziona, il gioco va avanti lo ste
 - Fai commit piccoli, con messaggi in italiano.
 - **I test sono obbligatori**: `npm test` (test runner integrato di Node) deve passare prima di ogni commit. Ogni bug corretto riceve un test che lo riproduce.
 - Il motore usa sempre l'RNG con seed, così nei test le partite sono riproducibili.
+- **Dopo ogni modifica ai file del gioco lancia `node tools/versione.js`**: aggiorna `sw.js`, così i telefoni ricevono l'avviso "Nuova versione disponibile". Un test fallisce se te ne dimentichi.
 - **Prova visiva**: se nell'ambiente ci sono già Playwright e Chromium, apri il gioco con un piccolo server locale, fai screenshot a 390×844 e a 412×915 e controlla che la console non abbia errori. Se non ci sono e la rete non permette di installarli, non forzare: segnalalo e vai avanti.
 - **Prima di chiudere una fase** verifica che:
   1. i test siano verdi;

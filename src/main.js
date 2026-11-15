@@ -10,6 +10,7 @@ import { createHud } from './ui/hud.js';
 import { attachInput } from './ui/input.js';
 import { createRenderer } from './ui/render.js';
 import { createScreens } from './ui/screens.js';
+import { registerUpdates } from './ui/update.js';
 
 const $ = (id) => document.getElementById(id);
 const boardEl = $('board');
@@ -287,6 +288,25 @@ attachInput(boardEl, {
 
 applySettings();
 openMenu();
+$('loading')?.remove();
+
+// Niente zoom per sbaglio (doppio tocco o pizzico su iPhone).
+document.addEventListener('dblclick', (event) => event.preventDefault());
+document.addEventListener('gesturestart', (event) => event.preventDefault());
+
+// Gioco offline e avviso quando esce una versione nuova.
+// (Con ?nosw non si registra: comodo mentre si sviluppa.)
+if (!params.has('nosw')) {
+  registerUpdates((apply) => {
+    const banner = $('update-banner');
+    banner.textContent = STRINGS.nuovaVersione;
+    banner.hidden = false;
+    banner.addEventListener('click', () => {
+      banner.disabled = true;
+      apply();
+    }, { once: true });
+  });
+}
 
 // Aiuto per le prove automatiche: si attiva solo aprendo la pagina con ?debug
 if (params.has('debug')) {

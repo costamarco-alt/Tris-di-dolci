@@ -43,12 +43,12 @@ Le fasi del progetto, nell'ordine. Ogni fase ha il suo prompt nella Parte C di `
   - [x] `tools/simulate.js` (bot, 200 partite per livello)
   - [x] Livelli regolati sugli obiettivi di vittoria
   - [x] Tabella finale in questo file
-- [ ] **Fase 6 — Rifinitura e app installabile (PWA)**
-  - [ ] `manifest.webmanifest` e icone
-  - [ ] `sw.js`: gioco offline e avviso "Nuova versione disponibile"
-  - [ ] Rifiniture e prestazioni
-  - [ ] Verifica finale: niente risorse esterne, niente audio, console pulita
-  - [ ] README finale
+- [x] **Fase 6 — Rifinitura e app installabile (PWA)**
+  - [x] `manifest.webmanifest` e icone
+  - [x] `sw.js`: gioco offline e avviso "Nuova versione disponibile"
+  - [x] Rifiniture e prestazioni
+  - [x] Verifica finale: niente risorse esterne, niente audio, console pulita
+  - [x] README finale
 - [ ] **Fase 7 (facoltativa) — App Android vera**
   - [ ] Cartella `android-app/` con Capacitor
   - [ ] Guida `docs/ANDROID.md`
@@ -138,3 +138,8 @@ Il bot non ragiona sull'obiettivo (per esempio non cerca apposta la gelatina), q
 - **Fase 5** — Mosse, obiettivi e stelle sono stati calcolati dalle simulazioni: per ogni livello si è scelta la percentuale di vittorie voluta (dal 97% del livello 1 al 41% del livello 30, in discesa graduale) e da lì il numero di mosse o il punteggio da raggiungere. Le stelle: la prima coincide con il minimo per vincere, la seconda con il punteggio di una partita vinta "media", la terza con quello delle partite migliori (circa una su sei).
 - **Fase 5** — Alcuni livelli con ostacoli sono stati alleggeriti (meno gelatina doppia o ghiaccio) perché richiedevano troppe mosse: nessun livello supera le 38 mosse.
 - **Fase 5** — Con 200 partite la percentuale di un livello oscilla di 3–4 punti: per questo le percentuali volute stanno lontane dai bordi delle fasce.
+- **Fase 6** — Offline: `sw.js` salva tutti i file del gioco in una cache con il numero di versione e risponde sempre dalla cache. Il numero di versione è calcolato dal contenuto dei file con `node tools/versione.js` (va lanciato dopo ogni modifica al gioco; un test lo controlla). La versione nuova viene scaricata in sottofondo e si attiva solo quando il giocatore tocca l'avviso, così una partita in corso non viene mai interrotta.
+- **Fase 6** — Icone: disegnate in codice (`icons/icon.svg`, un cuore-caramella) e trasformate in PNG da 192, 512, 512 "maskable" (per le icone tonde di Android) e 180 per iPhone. I PNG sono stati generati con il browser di prova dell'ambiente di sviluppo: il gioco resta senza dipendenze.
+- **Fase 6** — Zoom: `touch-action` blocca lo zoom da doppio tocco e i gesti sul tabellone, ma lo zoom del browser non è disattivato del tutto, per chi ne ha bisogno per leggere.
+- **Fase 6** — Aprendo la pagina con `?nosw` il service worker non viene registrato (comodo per provare le modifiche sul PC senza cache).
+- **Fase 6** — Verifica finale con Chromium a 390×844, 412×915 e 360×640: partite intere, gioco offline, avviso di aggiornamento. Nessun errore in console, nessuna risorsa esterna, nessun audio.

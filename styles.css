@@ -28,6 +28,7 @@ body {
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
+  touch-action: manipulation;
 }
 
 .app {
@@ -44,6 +45,84 @@ body {
 }
 
 .screen[hidden] {
+  display: none;
+}
+
+/* Passaggio morbido da una schermata all'altra */
+.screen:not([hidden]) {
+  animation: screen-in 240ms ease-out;
+}
+
+@keyframes screen-in {
+  from { opacity: 0; transform: translateY(10px); }
+}
+
+/* ---------- Schermata di caricamento ---------- */
+
+.loading {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: linear-gradient(160deg, #ffe3ec 0%, #ffd1e6 35%, #d9c8ff 70%, #bfe3ff 100%);
+}
+
+.loading-title {
+  font-size: clamp(2.2rem, 11vw, 3.4rem);
+  font-weight: 900;
+  color: var(--pink);
+  text-shadow: 0 3px 0 #fff;
+}
+
+.loading-dots {
+  display: flex;
+  gap: 10px;
+}
+
+.loading-dots span {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--pink);
+  animation: dot-bounce 900ms ease-in-out infinite;
+}
+
+.loading-dots span:nth-child(2) { animation-delay: 150ms; background: #ff9f1c; }
+.loading-dots span:nth-child(3) { animation-delay: 300ms; background: #3a86ff; }
+
+@keyframes dot-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50% { transform: translateY(-10px); opacity: 1; }
+}
+
+/* ---------- Avviso "nuova versione" ---------- */
+
+.update-banner {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  z-index: 20;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 52px;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 16px;
+  font: inherit;
+  font-weight: 800;
+  color: #fff;
+  background: #5a2a4a;
+  box-shadow: 0 8px 24px rgba(90, 42, 74, 0.35);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.update-banner[hidden] {
   display: none;
 }
 
@@ -188,6 +267,7 @@ body {
 }
 
 .map-scroll {
+  touch-action: pan-y;
   flex: 1 1 auto;
   width: 100%;
   min-height: 0;
@@ -893,7 +973,7 @@ body {
 /* Animazioni ridotte: scelta del telefono oppure impostazione del gioco */
 @media (prefers-reduced-motion: reduce) {
   .candy.hint .candy-in { animation-duration: 1800ms; }
-  .bomb-halo, .rainbow-spin, .menu-candy, .map-node.current { animation: none; }
+  .bomb-halo, .rainbow-spin, .menu-candy, .map-node.current, .screen:not([hidden]), .loading-dots span { animation: none; }
   .overlay, .card, .card-stars .star.on { animation: none; }
   .hud-bar-fill { transition: none; }
 }
@@ -903,6 +983,7 @@ body {
 .reduced-motion .rainbow-spin,
 .reduced-motion .menu-candy,
 .reduced-motion .map-node.current,
+.reduced-motion .screen:not([hidden]),
 .reduced-motion .overlay,
 .reduced-motion .card,
 .reduced-motion .card-stars .star.on { animation: none; }
