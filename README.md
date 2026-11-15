@@ -13,6 +13,7 @@ Il progetto si costruisce a fasi: l'elenco completo è in [`ROADMAP.md`](./ROADM
 - ✅ Fase 2 — tabellone giocabile sul telefono
 - ✅ Fase 3 — caramelle speciali
 - ✅ Fase 4 — 30 livelli, mappa, impostazioni e salvataggio
+- ✅ Fase 5 — difficoltà bilanciata
 
 Ci sono 30 livelli: si sbloccano uno dopo l'altro e i progressi restano salvati sul telefono.
 
@@ -72,6 +73,12 @@ Le regole del gioco sono controllate da test automatici. Per lanciarli serve sol
 
 ```
 npm test
+```
+
+Per vedere quanto è difficile ogni livello (un bot li gioca 200 volte l'uno):
+
+```
+node tools/simulate.js
 ```
 
 ## Com'è fatto

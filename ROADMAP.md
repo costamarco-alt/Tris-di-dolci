@@ -39,10 +39,10 @@ Le fasi del progetto, nell'ordine. Ogni fase ha il suo prompt nella Parte C di `
   - [x] Menu, mappa dei livelli, fine livello, impostazioni
   - [x] Salvataggio in `localStorage`
   - [x] Test di validità di tutti i livelli
-- [ ] **Fase 5 — Bilanciamento della difficoltà**
-  - [ ] `tools/simulate.js` (bot, 200 partite per livello)
-  - [ ] Livelli regolati sugli obiettivi di vittoria
-  - [ ] Tabella finale in questo file
+- [x] **Fase 5 — Bilanciamento della difficoltà**
+  - [x] `tools/simulate.js` (bot, 200 partite per livello)
+  - [x] Livelli regolati sugli obiettivi di vittoria
+  - [x] Tabella finale in questo file
 - [ ] **Fase 6 — Rifinitura e app installabile (PWA)**
   - [ ] `manifest.webmanifest` e icone
   - [ ] `sw.js`: gioco offline e avviso "Nuova versione disponibile"
@@ -52,6 +52,48 @@ Le fasi del progetto, nell'ordine. Ogni fase ha il suo prompt nella Parte C di `
 - [ ] **Fase 7 (facoltativa) — App Android vera**
   - [ ] Cartella `android-app/` con Capacitor
   - [ ] Guida `docs/ANDROID.md`
+
+## Bilanciamento (Fase 5)
+
+Risultato di `node tools/simulate.js --markdown`: un bot gioca ogni livello 200 volte scegliendo sempre la mossa con il punteggio immediato più alto. "Stelle medie" e "Mosse avanzate" sono calcolate sulle partite vinte.
+
+| Livello | Obiettivo | Mosse | Vittorie | Stelle medie | Mosse avanzate | Fascia voluta | In fascia |
+|---|---|---|---|---|---|---|---|
+| 1 | punteggio | 25 | 98% | 1.6 | 0.0 | 90–100% | sì |
+| 2 | punteggio | 25 | 96% | 1.6 | 0.0 | 90–100% | sì |
+| 3 | punteggio | 24 | 97% | 1.7 | 0.0 | 90–100% | sì |
+| 4 | punteggio | 24 | 96% | 1.6 | 0.0 | 90–100% | sì |
+| 5 | punteggio | 23 | 93% | 1.6 | 0.0 | 90–100% | sì |
+| 6 | raccolta | 16 | 83% | 1.7 | 6.7 | 60–85% | sì |
+| 7 | raccolta | 18 | 83% | 1.6 | 5.9 | 60–85% | sì |
+| 8 | raccolta | 22 | 82% | 1.6 | 8.2 | 60–85% | sì |
+| 9 | raccolta | 15 | 73% | 1.7 | 5.5 | 60–85% | sì |
+| 10 | raccolta | 18 | 74% | 1.6 | 5.6 | 60–85% | sì |
+| 11 | gelatina | 26 | 75% | 1.7 | 12.3 | 60–85% | sì |
+| 12 | gelatina | 31 | 76% | 1.6 | 15.8 | 60–85% | sì |
+| 13 | gelatina | 33 | 73% | 1.7 | 13.5 | 60–85% | sì |
+| 14 | gelatina | 33 | 72% | 1.7 | 14.7 | 60–85% | sì |
+| 15 | gelatina | 37 | 67% | 1.7 | 14.4 | 60–85% | sì |
+| 16 | ghiaccio | 28 | 64% | 1.7 | 12.1 | 35–70% | sì |
+| 17 | ghiaccio | 32 | 68% | 1.6 | 13.3 | 35–70% | sì |
+| 18 | ghiaccio | 32 | 61% | 1.7 | 11.4 | 35–70% | sì |
+| 19 | ghiaccio | 28 | 56% | 1.7 | 10.0 | 35–70% | sì |
+| 20 | ghiaccio | 34 | 56% | 1.7 | 13.4 | 35–70% | sì |
+| 21 | punteggio | 22 | 50% | 2.1 | 0.0 | 35–70% | sì |
+| 22 | raccolta | 21 | 53% | 1.8 | 4.4 | 35–70% | sì |
+| 23 | gelatina | 18 | 59% | 1.6 | 6.4 | 35–70% | sì |
+| 24 | ghiaccio | 37 | 50% | 1.7 | 13.8 | 35–70% | sì |
+| 25 | raccolta | 22 | 50% | 1.7 | 4.2 | 35–70% | sì |
+| 26 | gelatina | 28 | 48% | 1.6 | 9.3 | 35–70% | sì |
+| 27 | ghiaccio | 38 | 50% | 1.7 | 12.0 | 35–70% | sì |
+| 28 | raccolta | 28 | 45% | 1.6 | 5.5 | 35–70% | sì |
+| 29 | gelatina | 34 | 45% | 1.7 | 10.8 | 35–70% | sì |
+| 30 | gelatina | 34 | 39% | 1.8 | 10.7 | 35–70% | sì |
+
+Partite per livello: 200.
+Tutti i livelli sono nella fascia voluta.
+
+Il bot non ragiona sull'obiettivo (per esempio non cerca apposta la gelatina), quindi una persona attenta vince un po' più spesso di così.
 
 ## Decisioni
 
@@ -93,3 +135,6 @@ Le fasi del progetto, nell'ordine. Ogni fase ha il suo prompt nella Parte C di `
 - **Fase 4** — Prima di ogni livello compare una scheda con l'obiettivo e, se c'è, il consiglio (`tip`). La mappa va dall'alto (livello 1) verso il basso.
 - **Fase 4** — Azzerare i progressi cancella stelle e livelli sbloccati ma lascia le impostazioni.
 - **Fase 4** — Mosse e soglie delle stelle dei 30 livelli sono una prima taratura fatta con un bot; la messa a punto vera è la Fase 5.
+- **Fase 5** — Mosse, obiettivi e stelle sono stati calcolati dalle simulazioni: per ogni livello si è scelta la percentuale di vittorie voluta (dal 97% del livello 1 al 41% del livello 30, in discesa graduale) e da lì il numero di mosse o il punteggio da raggiungere. Le stelle: la prima coincide con il minimo per vincere, la seconda con il punteggio di una partita vinta "media", la terza con quello delle partite migliori (circa una su sei).
+- **Fase 5** — Alcuni livelli con ostacoli sono stati alleggeriti (meno gelatina doppia o ghiaccio) perché richiedevano troppe mosse: nessun livello supera le 38 mosse.
+- **Fase 5** — Con 200 partite la percentuale di un livello oscilla di 3–4 punti: per questo le percentuali volute stanno lontane dai bordi delle fasce.
