@@ -10,15 +10,15 @@ Le fasi del progetto, nell'ordine. Ogni fase ha il suo prompt nella Parte C di `
   - [x] Pagina minima con il titolo su sfondo a gradiente
   - [x] Test funzionanti con `npm test`
   - [x] `README.md` per Marco
-- [ ] **Fase 1 — Motore di gioco (solo logica e test)**
-  - [ ] RNG con seed
-  - [ ] Tabellone con celle e buchi
-  - [ ] Generazione senza match iniziali e con almeno una mossa valida
-  - [ ] Ricerca dei match: linee da 3, 4, 5+ e forme L/T
-  - [ ] Scambio con annullamento se non valido (mossa non consumata)
-  - [ ] Eliminazione, gravità, riempimento, cascate con moltiplicatore
-  - [ ] Mosse valide, suggerimento, rimescolo garantito
-  - [ ] `trySwap` restituisce la lista di passi con id stabili
+- [x] **Fase 1 — Motore di gioco (solo logica e test)**
+  - [x] RNG con seed
+  - [x] Tabellone con celle e buchi
+  - [x] Generazione senza match iniziali e con almeno una mossa valida
+  - [x] Ricerca dei match: linee da 3, 4, 5+ e forme L/T
+  - [x] Scambio con annullamento se non valido (mossa non consumata)
+  - [x] Eliminazione, gravità, riempimento, cascate con moltiplicatore
+  - [x] Mosse valide, suggerimento, rimescolo garantito
+  - [x] `trySwap` restituisce la lista di passi con id stabili
 - [ ] **Fase 2 — Tabellone giocabile sul telefono**
   - [ ] Le 6 caramelle SVG (`src/ui/pieces.js`)
   - [ ] Tabellone e animazioni guidate dai passi (`src/ui/render.js`)
@@ -58,3 +58,17 @@ Le fasi del progetto, nell'ordine. Ogni fase ha il suo prompt nella Parte C di `
 - **Fase 0** — Il repository su GitHub si chiama `Tris-di-dolci` (con la T maiuscola), quindi l'indirizzo di GitHub Pages sarà `https://costamarco-alt.github.io/Tris-di-dolci/`. Tutti i percorsi nel codice sono relativi, quindi il nome del repository non crea problemi.
 - **Fase 0** — Le cartelle ancora vuote (`src/ui/`, `src/levels/`, `tools/`, `icons/`) contengono un file `.gitkeep`, perché git non salva le cartelle vuote. Sparirà quando arriveranno i file veri.
 - **Fase 0** — I test si lanciano con `node --test` (trova da solo i file `*.test.js`). Serve Node 20 o più recente.
+- **Fase 1** — Coordinate: ogni casella è `{ r, c }` (riga e colonna, da 0, partendo in alto a sinistra).
+- **Fase 1** — Forma dei passi restituiti da `trySwap`:
+  - `swap` / `swapBack`: `{ a: { r, c, id }, b: { r, c, id } }` (posizioni prima dello scambio);
+  - `cascade`: `{ n }`, emesso all'inizio di ogni cascata, anche la prima (l'interfaccia mostra il testo da 2 in su);
+  - `clear`: `{ cascade, points, cells: [{ r, c, id, color }], groups: [{ color, shape, orientation, cells }] }`;
+  - `fall`: `{ moves: [{ id, from, to }] }`;
+  - `spawn`: `{ candies: [{ id, color, special, from, to }] }`, con `from.r` negativo (sopra il tabellone);
+  - `shuffle`: `{ candies: [{ id, color, special, from, to }], recolored, success }`.
+- **Fase 1** — Forme dei match (`shape`): `line3`, `line4`, `line5` (5 o più in fila), `L`, `T`. Una croce conta come `T`. Per ora si eliminano tutte come match normali; gli speciali arrivano con la Fase 3.
+- **Fase 1** — Gravità e buchi: le caramelle **attraversano i buchi** (cadono nella prima casella libera sotto) e quelle nuove entrano sempre dall'alto della colonna. È la soluzione più semplice e garantisce che il tabellone si riempia sempre.
+- **Fase 1** — Rimescolo: prima si prova a ridistribuire le stesse caramelle; se nessuna disposizione dà una mossa valida (caso raro), si cambiano anche i colori mantenendo gli id (`recolored: true`).
+- **Fase 1** — `findValidMoves` dà a ogni mossa uno `score` pari ai punti della prima eliminazione (senza contare le cascate). Il suggerimento è la mossa con lo `score` più alto.
+- **Fase 1** — Il layout legge già i simboli di gelatina e ghiaccio (`j J i I`), ma il loro comportamento e gli obiettivi diversi dal punteggio arrivano con la Fase 4. Le mosse avanzate diventano punti solo per quegli obiettivi, quindi anche questo arriva con la Fase 4.
+- **Fase 1** — Un livello per cui non si riesce a generare un tabellone giocabile (per esempio 2×2) fa fallire `createGame` con un errore chiaro: servirà al test di validità dei livelli della Fase 4.

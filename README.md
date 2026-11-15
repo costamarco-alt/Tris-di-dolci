@@ -9,7 +9,7 @@ Un gioco puzzle "match-3" a tema caramelle: scambi due caramelle vicine per alli
 Il progetto si costruisce a fasi: l'elenco completo è in [`ROADMAP.md`](./ROADMAP.md).
 
 - ✅ Fase 0 — impostazione del progetto
-- ⏳ Fase 1 — motore di gioco (le regole, senza grafica)
+- ✅ Fase 1 — motore di gioco (le regole, senza grafica)
 - ⏳ Fase 2 — tabellone giocabile sul telefono
 
 Per ora la pagina mostra solo il titolo: il tabellone giocabile arriva con la Fase 2.
