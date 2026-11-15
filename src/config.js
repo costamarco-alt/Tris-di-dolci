@@ -21,7 +21,19 @@ export const CONFIG = {
   ANIM: {
     SWAP: 150,
     CLEAR: 200,
-    FALL_PER_CELL: 70,
+    FALL_BASE: 140, // durata minima di una caduta
+    FALL_PER_CELL: 55, // tempo in più per ogni casella di caduta
+    FALL_MAX: 520,
+    SHUFFLE: 450,
+    CASCADE_TEXT: 900,
     HINT_DELAY: 5000,
+    REDUCED_FACTOR: 0.5, // con "animazioni ridotte" i tempi si accorciano
   },
+
+  // Input
+  SWIPE_THRESHOLD: 0.3, // frazione della casella oltre cui parte lo swipe
+
+  // Particelle per ogni caramella eliminata
+  PARTICLES_PER_CANDY: 4,
+  MAX_PARTICLES: 60,
 };

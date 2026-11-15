@@ -10,13 +10,20 @@ Il progetto si costruisce a fasi: l'elenco completo è in [`ROADMAP.md`](./ROADM
 
 - ✅ Fase 0 — impostazione del progetto
 - ✅ Fase 1 — motore di gioco (le regole, senza grafica)
-- ⏳ Fase 2 — tabellone giocabile sul telefono
+- ✅ Fase 2 — tabellone giocabile sul telefono
 
-Per ora la pagina mostra solo il titolo: il tabellone giocabile arriva con la Fase 2.
+Si può già giocare un livello di prova: 25 mosse per arrivare a 3000 punti.
+
+## Come si gioca
+
+- **Scorri** una caramella verso quella vicina per scambiarle, oppure **tocca** una caramella e poi quella accanto.
+- Allinea 3 o più caramelle uguali, in riga o in colonna, per eliminarle.
+- Se lo scambio non allinea niente, le caramelle tornano al loro posto e la mossa non si consuma.
+- Se resti fermo 5 secondi, una mossa possibile inizia a pulsare.
 
 ## Come si prova
 
-### Sul telefono (consigliato, dopo la Fase 2)
+### Sul telefono (consigliato)
 1. Su GitHub apri **Settings → Pages**.
 2. Alla voce **Source** scegli **Deploy from a branch**.
 3. Branch **main**, cartella **/ (root)**, poi **Save**.
